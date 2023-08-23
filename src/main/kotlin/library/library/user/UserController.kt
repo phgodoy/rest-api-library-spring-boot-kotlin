@@ -1,22 +1,44 @@
 package library.library.user
 
-
+import library.library.dtos.UserWithAddress
+import library.library.address.AddresRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.slf4j.LoggerFactory
 
 @RestController
 @RequestMapping("/api/users")
-class UserController(@Autowired private val userRepository: UserRepository) {
+class UserController(@Autowired private val userRepository: UserRepository,
+                     @Autowired private val addressRepository: AddresRepository) {
 
     @GetMapping("")
     fun getAllUsers(): List<User> =
-        userRepository.findAll().toList()
+            userRepository.findAll().toList()
 
     @PostMapping("")
-    fun createUser(@RequestBody user: User): ResponseEntity<User> {
-        val createdUser = userRepository.save(user)
+    fun createUser(@RequestBody userWithAddress: UserWithAddress): ResponseEntity<User> {
+        val user = userWithAddress.user
+        val address = userWithAddress.address
+
+        // Salve o endereço no banco de dados primeiro e obtenha o ID gerado
+        val savedAddress = addressRepository.save(address)
+
+        // Crie o usuário e associe o ID do endereço
+        val createdUser = User(
+                id = user.id,  // Você pode ajustar isso conforme a sua lógica de geração de IDs
+                name = user.name,
+                email = user.email,
+                addres_id = savedAddress.id.toInt(),
+                phone = user.phone,
+                identification_code = user.identification_code,
+                created_at = user.created_at,
+                updated_at = user.updated_at
+        )
+
+        userRepository.save(createdUser)
+
         return ResponseEntity(createdUser, HttpStatus.CREATED)
     }
 
