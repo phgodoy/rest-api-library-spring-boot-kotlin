@@ -1,43 +1,30 @@
 package library.library.user
 
-import library.library.dtos.UserWithAddress
-import library.library.address.AddresRepository
+import com.fasterxml.jackson.databind.ObjectMapper
+import library.library.address.Address
+import library.library.address.AddressRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.slf4j.LoggerFactory
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/users")
-class UserController(@Autowired private val userRepository: UserRepository,
-                     @Autowired private val addressRepository: AddresRepository) {
+class UserController(
+        @Autowired private val userRepository: UserRepository,
+        @Autowired private val addressRepository: AddressRepository
+) {
 
     @GetMapping("")
     fun getAllUsers(): List<User> =
             userRepository.findAll().toList()
 
     @PostMapping("")
-    fun createUser(@RequestBody userWithAddress: UserWithAddress): ResponseEntity<User> {
-        val user = userWithAddress.user
-        val address = userWithAddress.address
-
-        // Salve o endereço no banco de dados primeiro e obtenha o ID gerado
-        val savedAddress = addressRepository.save(address)
-
-        // Crie o usuário e associe o ID do endereço
-        val createdUser = User(
-                id = user.id,  // Você pode ajustar isso conforme a sua lógica de geração de IDs
-                name = user.name,
-                email = user.email,
-                addres_id = savedAddress.id.toInt(),
-                phone = user.phone,
-                identification_code = user.identification_code,
-                created_at = user.created_at,
-                updated_at = user.updated_at
-        )
-
-        userRepository.save(createdUser)
+    fun createUser(@RequestBody user: User): ResponseEntity<User> {
+        val createdUser = userRepository.save(user)
 
         return ResponseEntity(createdUser, HttpStatus.CREATED)
     }
@@ -51,7 +38,6 @@ class UserController(@Autowired private val userRepository: UserRepository,
 
     @PutMapping("/{id}")
     fun updateUserById(@PathVariable("id") userId: Int, @RequestBody user: User): ResponseEntity<User> {
-
         val existingUser = userRepository.findById(userId.toLong()).orElse(null)
 
         if (existingUser == null) {
@@ -71,4 +57,24 @@ class UserController(@Autowired private val userRepository: UserRepository,
         userRepository.deleteById(userId.toLong())
         return ResponseEntity(HttpStatus.NO_CONTENT)
     }
+
+    @PostMapping("/user-with-address")
+    fun createUserWithAddress(@RequestBody requestData: Map<String, Any>): ResponseEntity<Any> {
+        try {
+            val userJson = ObjectMapper().writeValueAsString(requestData["user"])
+            val addressJson = ObjectMapper().writeValueAsString(requestData["address"])
+
+            val user = ObjectMapper().readValue(userJson, User::class.java)
+            val address = ObjectMapper().readValue(addressJson, Address::class.java)
+
+            val savedAddress = addressRepository.save(address)
+            user.addres_id = savedAddress.id
+
+            val createdUser = userRepository.save(user)
+            return ResponseEntity(createdUser, HttpStatus.CREATED)
+        } catch (e: Exception) {
+            return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
 }

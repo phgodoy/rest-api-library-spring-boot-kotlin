@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/addresses")
-class AddressController(@Autowired private val addressRepository: AddresRepository) {
+class AddressController(@Autowired private val addressRepository: AddressRepository) {
 
     @GetMapping("")
     fun getAllAddresses(): List<Address> =
