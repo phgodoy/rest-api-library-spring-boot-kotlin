@@ -10,7 +10,7 @@ data class User(
         val id: Long = 0,
         val name: String,
         val email: String,
-        var addres_id: Long,
+        val addres_id: Long,
         val phone: String,
         val identificationCode: String,
         val createdAt: Timestamp,
