@@ -6,7 +6,7 @@ import org.dozer.Mapper
 object DozerMapper {
     private val mapper: Mapper = DozerBeanMapper()
 
-    fun <O, D> parseObject(origin: O, destination: Class<D>? ): D{
+    fun <O, D : Any> parseObject(origin: O, destination: Class<D>? ): D{
         return mapper.map(origin, destination)
     }
 

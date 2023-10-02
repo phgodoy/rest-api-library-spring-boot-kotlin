@@ -16,3 +16,23 @@ data class User(
         val createdAt: Timestamp,
         val updatedAt: Timestamp?
 )
+{
+        constructor(
+                name: String,
+                email: String,
+                addres_id: Long,
+                phone: String,
+                identificationCode: String,
+                createdAt: Timestamp,
+                updatedAt: Timestamp?
+        ) : this(
+                id = 0,
+                name = name,
+                email = email,
+                addres_id = addres_id,
+                phone = phone,
+                identificationCode = identificationCode,
+                createdAt = createdAt,
+                updatedAt = updatedAt
+        )
+}

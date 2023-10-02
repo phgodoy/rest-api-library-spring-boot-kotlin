@@ -9,6 +9,10 @@ data class UserVO (
         var addres_id: Long,
         var phone: String,
         var identificationCode: String,
-        var createdAt: Timestamp,
+        var createdAt: Timestamp?,
         var updatedAt: Timestamp?
 )
+{
+    // Construtor sem argumentos
+    constructor() : this(0, "", "", 0, "", "", null, null)
+}

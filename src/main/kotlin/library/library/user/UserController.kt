@@ -62,13 +62,13 @@ class UserController(
     fun createUserWithAddress(@RequestBody requestData: Map<String, Any>): ResponseEntity<Any> {
         try {
             val userJson = ObjectMapper().writeValueAsString(requestData["user"])
-            val addressJson = ObjectMapper().writeValueAsString(requestData["address"])
+            //val addressJson = ObjectMapper().writeValueAsString(requestData["address"])
 
             val user = ObjectMapper().readValue(userJson, User::class.java)
-            val address = ObjectMapper().readValue(addressJson, Address::class.java)
+           // val address = ObjectMapper().readValue(addressJson, Address::class.java)
 
-            val savedAddress = addressRepository.save(address)
-            user.addres_id = savedAddress.id
+           // val savedAddress = addressRepository.save(address)
+           // user.addres_id = savedAddress.id
 
             val createdUser = userRepository.save(user)
             return ResponseEntity(createdUser, HttpStatus.CREATED)
