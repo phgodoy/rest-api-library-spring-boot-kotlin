@@ -1,80 +1,48 @@
 package library.library.user
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import library.library.address.Address
 import library.library.address.AddressRepository
+import library.library.data.vo.v1.UserVO
+import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/users")
 class UserController(
         @Autowired private val userRepository: UserRepository,
-        @Autowired private val addressRepository: AddressRepository
+        @Autowired private val addressRepository: AddressRepository,
+        @Autowired private val modelMapper: ModelMapper
 ) {
 
     @GetMapping("")
-    fun getAllUsers(): List<User> =
-            userRepository.findAll().toList()
+    fun getAllUsers(): List<UserVO> {
+        val users: List<User> = userRepository.findAll().toList()
+
+        return users.map { user ->
+            modelMapper.map(user, UserVO::class.java)
+        }
+    }
 
     @PostMapping("")
-    fun createUser(@RequestBody user: User): ResponseEntity<User> {
+    fun createUser(@RequestBody user: User): ResponseEntity<UserVO> {
         val createdUser = userRepository.save(user)
 
-        return ResponseEntity(createdUser, HttpStatus.CREATED)
-    }
-
-    @GetMapping("/{id}")
-    fun getUserById(@PathVariable("id") userId: Int): ResponseEntity<User> {
-        val user = userRepository.findById(userId.toLong()).orElse(null)
-        return if (user != null) ResponseEntity(user, HttpStatus.OK)
-        else ResponseEntity(HttpStatus.NOT_FOUND)
-    }
-
-    @PutMapping("/{id}")
-    fun updateUserById(@PathVariable("id") userId: Int, @RequestBody user: User): ResponseEntity<User> {
-        val existingUser = userRepository.findById(userId.toLong()).orElse(null)
-
-        if (existingUser == null) {
-            return ResponseEntity(HttpStatus.NOT_FOUND)
-        }
-
-        val updatedUser = existingUser.copy(name = user.name, email = user.email)
-        userRepository.save(updatedUser)
-        return ResponseEntity(updatedUser, HttpStatus.OK)
-    }
-
-    @DeleteMapping("/{id}")
-    fun deleteUserById(@PathVariable("id") userId: Int): ResponseEntity<User> {
-        if (!userRepository.existsById(userId.toLong())) {
-            return ResponseEntity(HttpStatus.NOT_FOUND)
-        }
-        userRepository.deleteById(userId.toLong())
-        return ResponseEntity(HttpStatus.NO_CONTENT)
+        return ResponseEntity(modelMapper.map(createdUser, UserVO::class.java), HttpStatus.CREATED)
     }
 
     @PostMapping("/user-with-address")
-    fun createUserWithAddress(@RequestBody requestData: Map<String, Any>): ResponseEntity<Any> {
+    fun createUserWithAddress(@RequestBody requestData: Map<String, Any>): ResponseEntity<UserVO> {
         try {
             val userJson = ObjectMapper().writeValueAsString(requestData["user"])
-            //val addressJson = ObjectMapper().writeValueAsString(requestData["address"])
 
             val user = ObjectMapper().readValue(userJson, User::class.java)
-           // val address = ObjectMapper().readValue(addressJson, Address::class.java)
-
-           // val savedAddress = addressRepository.save(address)
-           // user.addres_id = savedAddress.id
-
             val createdUser = userRepository.save(user)
-            return ResponseEntity(createdUser, HttpStatus.CREATED)
+            return ResponseEntity(modelMapper.map(createdUser, UserVO::class.java), HttpStatus.CREATED)
         } catch (e: Exception) {
             return ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
-
 }

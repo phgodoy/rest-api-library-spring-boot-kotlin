@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version "1.8.21"
 	kotlin("plugin.spring") version "1.8.21"
 	kotlin("plugin.jpa") version "1.8.21"
+	kotlin("kapt") version "1.8.21"
 }
 
 group = "libary"
@@ -23,7 +24,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
 	implementation("org.postgresql:postgresql:42.5.4")
 	implementation("org.springframework.boot:spring-boot-starter-test:3.1.0")
-	implementation("net.sf.dozer:dozer:5.5.1")
+	implementation("org.modelmapper:modelmapper:2.4.4")
 	testImplementation(kotlin("test"))
 }
 
