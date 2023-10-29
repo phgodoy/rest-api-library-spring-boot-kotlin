@@ -26,11 +26,35 @@ class UserController(
         }
     }
 
+    @GetMapping("/{userId}")
+    fun getUserById(@PathVariable userId: Long): ResponseEntity<UserVO> {
+        val user = userRepository.findById(userId)
+
+        if (user.isPresent) {
+            val userVO = modelMapper.map(user.get(), UserVO::class.java)
+            return ResponseEntity(userVO, HttpStatus.OK)
+        } else {
+            return ResponseEntity(HttpStatus.NOT_FOUND)
+        }
+    }
+
     @PostMapping("")
     fun createUser(@RequestBody user: User): ResponseEntity<UserVO> {
         val createdUser = userRepository.save(user)
 
         return ResponseEntity(modelMapper.map(createdUser, UserVO::class.java), HttpStatus.CREATED)
+    }
+
+    @DeleteMapping("/{userId}")
+    fun deleteUserById(@PathVariable userId: Long): ResponseEntity<Unit> {
+        val user = userRepository.findById(userId)
+
+        if (user.isPresent) {
+            userRepository.deleteById(userId)
+            return ResponseEntity(HttpStatus.NO_CONTENT)
+        } else {
+            return ResponseEntity(HttpStatus.NOT_FOUND)
+        }
     }
 
     @PostMapping("/user-with-address")

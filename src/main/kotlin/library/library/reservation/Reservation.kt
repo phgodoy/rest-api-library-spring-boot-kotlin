@@ -12,12 +12,10 @@ data class Reservation(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
-        @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id")
-        val user: User,
-        @ManyToOne
-        @JoinColumn(name = "book_id", referencedColumnName = "id")
-        val book: Book,
+        @Column(name = "user_id")
+        val userId: Long,
+        @Column(name = "book_id")
+        val bookId: Long,
         val reservationDate: LocalDate,
         val createdAt: Timestamp,
         val updatedAt: Timestamp?

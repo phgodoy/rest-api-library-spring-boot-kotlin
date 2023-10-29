@@ -11,9 +11,8 @@ data class Fines (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
-        @ManyToOne
-        @JoinColumn(name = "loan_id", referencedColumnName = "id")
-        val loan: Loan,
+        @Column(name = "loan_id")
+        val loanId: Long,
         val amount: BigDecimal,
         val createdAt: Timestamp,
         val updatedAt: Timestamp?

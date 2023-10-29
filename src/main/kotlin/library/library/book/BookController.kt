@@ -1,7 +1,7 @@
 package library.library.book
 
-import library.library.user.User
-import library.library.user.UserRepository
+import library.library.data.vo.v1.BookVO
+import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -9,27 +9,35 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/books")
-class BookController(@Autowired private val bookRepository: BookRepository) {
+class BookController(
+        @Autowired private val bookRepository: BookRepository,
+        @Autowired private val modelMapper: ModelMapper
+) {
 
     @GetMapping("")
-    fun getAllBooks(): List<Book> =
-            bookRepository.findAll().toList()
+    fun getAllBooks(): List<BookVO> {
+        val book: List<Book> = bookRepository.findAll().toList()
+
+        return book.map { book ->
+            modelMapper.map(book, BookVO::class.java)
+        }
+    }
 
     @PostMapping("")
-    fun createUser(@RequestBody book: Book): ResponseEntity<Book> {
-        val createdUser = bookRepository.save(book)
-        return ResponseEntity(createdUser, HttpStatus.CREATED)
+    fun createBook(@RequestBody book: Book): ResponseEntity<BookVO> {
+        val createdBook = bookRepository.save(book)
+        return ResponseEntity(modelMapper.map(createdBook, BookVO::class.java), HttpStatus.CREATED)
     }
 
     @GetMapping("/{id}")
-    fun getUserById(@PathVariable("id") bookId: Int): ResponseEntity<Book> {
-        val book = bookRepository.findById(bookId.toLong()).orElse(null)
-        return if (book != null) ResponseEntity(book, HttpStatus.OK)
+    fun getBookById(@PathVariable("id") bookId: Int): ResponseEntity<BookVO> {
+        val book = bookRepository.findById(bookId.toLong())
+        return if (book != null) ResponseEntity(modelMapper.map(book.get(), BookVO::class.java), HttpStatus.OK)
         else ResponseEntity(HttpStatus.NOT_FOUND)
     }
 
     @PutMapping("/{id}")
-    fun updateUserById(@PathVariable("id") bookId: Int, @RequestBody book: Book): ResponseEntity<Book> {
+    fun updateBookById(@PathVariable("id") bookId: Int, @RequestBody book: Book): ResponseEntity<BookVO> {
 
         val existingUser = bookRepository.findById(bookId.toLong()).orElse(null)
 
@@ -37,13 +45,13 @@ class BookController(@Autowired private val bookRepository: BookRepository) {
             return ResponseEntity(HttpStatus.NOT_FOUND)
         }
 
-        val updatedUser = existingUser.copy(title = book.title, author = book.author)
-        bookRepository.save(updatedUser)
-        return ResponseEntity(updatedUser, HttpStatus.OK)
+        val updatedBook = existingUser.copy(title = book.title, author = book.author)
+        bookRepository.save(updatedBook)
+        return ResponseEntity(modelMapper.map(updatedBook, BookVO::class.java), HttpStatus.OK)
     }
 
     @DeleteMapping("/{id}")
-    fun deleteUserById(@PathVariable("id") bookId: Int): ResponseEntity<User> {
+    fun deleteUserById(@PathVariable("id") bookId: Int): ResponseEntity<Void> {
         if (!bookRepository.existsById(bookId.toLong())) {
             return ResponseEntity(HttpStatus.NOT_FOUND)
         }

@@ -4,7 +4,7 @@ import library.library.user.User
 import java.sql.Timestamp
 
 data class AddressVO (
-    val user: User,
+    val user_id: Long = 0,
     val street: String,
     val number: Int,
     val neighbourhood: String,
@@ -17,4 +17,9 @@ data class AddressVO (
     val status: Int,
     val createdAt: Timestamp,
     val updatedAt: Timestamp?
-)
+){
+    // Construtor sem argumentos
+    constructor() : this(
+            0, "", 0, "", "", 0, "", "", 0.0, 0.0, 0, Timestamp(System.currentTimeMillis()), null
+    )
+}

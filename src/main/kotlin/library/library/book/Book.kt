@@ -8,7 +8,7 @@ import java.sql.Timestamp
 data class Book(
         @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+        val id: Long,
         val title: String,
         val author: String,
         val publisher: String,

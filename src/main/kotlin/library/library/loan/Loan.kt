@@ -12,15 +12,15 @@ data class Loan(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long,
-        @ManyToOne
-        @JoinColumn(name = "user_id", referencedColumnName = "id")
-        val user: User,
-        @ManyToOne
-        @JoinColumn(name = "book_id", referencedColumnName = "id")
-        val book: Book,
+        @Column(name = "user_id") // Mapeia para o campo user_id no banco de dados
+        val userId: Long, // Alterado de User para Long (user_id)
+        @Column(name = "book_id") // Mapeia para o campo book_id no banco de dados
+        val bookId: Long, // Alterado de Book para Long (book_id)
         val loanDate: LocalDate,
         val dueDate: LocalDate,
         val returnDate: LocalDate?,
         val createdAt: Timestamp,
         val updatedAt: Timestamp?
 )
+
+
